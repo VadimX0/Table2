@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import { COLUMNS } from "./columns";
 import './table.css'
 import axios from "axios";
+import Loader from "../Loader";
 
 
 
@@ -13,7 +14,8 @@ class Table extends Component{
     super(props)
     this.state={
         posts:[],
-        ascendingDirectionSort:'true'//фильтрация по возрастанию по умолчанию
+        ascendingDirectionSort:'true',//фильтрация по возрастанию по умолчанию
+        loading: true//Загрузка данных
     }
 }
 
@@ -24,8 +26,11 @@ handleChange = (event) => {
 componentDidMount(){
     axios.get(`http://localhost:8080/api/post?id=${userId}`)
     .then(response=>{
+      setTimeout(()=>{
         console.log(response)
         this.setState({posts: response.data})
+        this.setState({loading:false})
+      },1000)//Искусственная задержка для загрузки данных
     }).catch(error=>{
         console.log(error)
         this.setState({errorMsg:'Error'})
@@ -34,6 +39,7 @@ componentDidMount(){
   render(){
     const {posts, errorMsg} = this.state
     const {ascendingDirectionSort}=this.state
+    const {loading}=this.state
     const columns = COLUMNS 
 
     
@@ -86,6 +92,7 @@ componentDidMount(){
               </tr>
             )
           }):null}
+          {loading && <Loader />} 
           {errorMsg? <div>{errorMsg}</div> : null}
           <tr></tr>
           </tbody>
