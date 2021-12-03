@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import { COLUMNS } from "./columns";
 import './table.css'
 import axios from "axios";
-import DropDownList from "./drDownList";
+
 
 
 const userId = 2; //Записи какого пользователя мы получаем
@@ -11,14 +11,15 @@ const userId = 2; //Записи какого пользователя мы по
 class Table extends Component{
   constructor(props){
     super(props)
-   
     this.state={
         posts:[],
-        ascendingDirectionSort:true//фильтрация по возрастанию по умолчанию
+        ascendingDirectionSort:'true'//фильтрация по возрастанию по умолчанию
     }
 }
 
-
+handleChange = (event) => {
+  this.setState({ ascendingDirectionSort: event.target.value });
+};
 
 componentDidMount(){
     axios.get(`http://localhost:8080/api/post?id=${userId}`)
@@ -35,14 +36,21 @@ componentDidMount(){
     const {ascendingDirectionSort}=this.state
     const columns = COLUMNS 
 
+    
+   
 
     const sortData=(field)=>{//Сортировка данных по указанному полю
       let sortedData
       const copyData = posts.concat(); //сохраняем копию данных
-      if(ascendingDirectionSort){//Если выбрано по возрастанию
-      sortedData = copyData.sort((a,b)=>{return a[field] > b[field] ? 1:-1})
+      if(ascendingDirectionSort==="true"){//Если выбрано по возрастанию
+        sortedData = copyData.sort((a,b)=>{return a[field] > b[field] ? 1:-1})
+        console.log('true executed')
+        
       }else{//Иначе по убыванию
-      sortedData = copyData.reverse((a,b)=>{return a[field] > b[field] ? 1:-1})
+
+        sortedData = copyData.sort((a,b)=>{return a[field] > b[field] ? -1:1})
+        console.log('false executed')
+        
       }
       this.setState({posts: sortedData})
     }
@@ -52,7 +60,10 @@ componentDidMount(){
     
     return(
       <div>
-        <DropDownList sendData={(data)=>this.setState({ascendingDirectionSort:data})}/>{/*Выпадающий список*/}
+        <select value = {ascendingDirectionSort} onChange={this.handleChange}>
+        <option value={true}>По возрастанию</option>
+        <option value={false}>По убыванию</option>
+      </select>
         <p></p>
         <table className ="table">
           <thead>
@@ -64,7 +75,7 @@ componentDidMount(){
             </tr>
           </thead>
           <tbody>
-          {posts.length? 
+          {posts? 
           posts.map((post)=>{
             return(
               <tr key = {post.id}>
